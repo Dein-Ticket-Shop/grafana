@@ -7,6 +7,7 @@ import { config, useChromeHeaderHeight } from '@grafana/runtime';
 import { useSceneObjectState } from '@grafana/scenes';
 import { ElementSelectionContext, useStyles2 } from '@grafana/ui';
 import NativeScrollbar, { DivScrollElement } from 'app/core/components/NativeScrollbar';
+import { getKioskModeFromUrl } from 'app/core/navigation/kiosk';
 
 import { useSnappingSplitter } from '../panel-edit/splitter/useSnappingSplitter';
 import { DashboardScene } from '../scene/DashboardScene';
@@ -27,13 +28,14 @@ export function DashboardEditPaneSplitter({ dashboard, isEditing, body, controls
   const { editPane } = dashboard.state;
   const styles = useStyles2(getStyles, headerHeight ?? 0);
   const [isCollapsed, setIsCollapsed] = useEditPaneCollapsed();
+  const kioskMode = getKioskModeFromUrl();
 
   if (!config.featureToggles.dashboardNewLayouts) {
     return (
       <NativeScrollbar onSetScrollRef={dashboard.onSetScrollRef}>
         <div className={styles.canvasWrappperOld}>
           <NavToolbarActions dashboard={dashboard} />
-          <div className={styles.controlsWrapperSticky}>{controls}</div>
+          {kioskMode && <div className={styles.controlsWrapperSticky}>{controls}</div>}
           <div className={styles.body}>{body}</div>
         </div>
       </NativeScrollbar>
@@ -161,8 +163,6 @@ function getStyles(theme: GrafanaTheme2, headerHeight: number) {
       gap: theme.spacing(1),
       boxSizing: 'border-box',
       flexDirection: 'column',
-      // without top padding the fixed controls headers is rendered over the selection outline.
-      padding: theme.spacing(0.125, 2, 2, 2),
     }),
     bodyEditing: css({
       position: 'absolute',

@@ -16,6 +16,7 @@ import {
   CancelActivationHandler,
 } from '@grafana/scenes';
 import { Box, Stack, useStyles2 } from '@grafana/ui';
+import { getKioskModeFromUrl } from 'app/core/navigation/kiosk';
 
 import { PanelEditControls } from '../panel-edit/PanelEditControls';
 import { getDashboardSceneFor } from '../utils/utils';
@@ -123,6 +124,10 @@ function DashboardControlsRenderer({ model }: SceneComponentProps<DashboardContr
   const { links, editPanel } = dashboard.useState();
   const styles = useStyles2(getStyles);
   const showDebugger = window.location.search.includes('scene-debugger');
+
+  if (getKioskModeFromUrl()) {
+    return <></>;
+  }
 
   if (!model.hasControls()) {
     // To still have spacing when no controls are rendered

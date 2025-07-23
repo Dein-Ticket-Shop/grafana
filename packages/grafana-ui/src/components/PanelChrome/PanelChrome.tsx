@@ -7,6 +7,7 @@ import { GrafanaTheme2, LoadingState } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
+import { getKioskModeFromUrl } from '../../../../../public/app/core/navigation/kiosk';
 import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
 import { getFocusStyles } from '../../themes/mixins';
 import { DelayRender } from '../../utils/DelayRender';
@@ -156,6 +157,7 @@ export function PanelChrome({
   const pointerDistance = usePointerDistance();
 
   const hasHeader = !hoverHeader;
+  //  && !window.location.search.includes('kiosk')
 
   const [isOpen, toggleOpen] = useToggle(true);
 
@@ -324,6 +326,9 @@ export function PanelChrome({
     </>
   );
 
+  const isKioskMode = getKioskModeFromUrl();
+  console.log('🎉 Kiosk mode:', isKioskMode);
+
   return (
     // tabIndex={0} is needed for keyboard accessibility in the plot area
     <section
@@ -397,7 +402,7 @@ export function PanelChrome({
 
           {headerContent}
 
-          {menu && (
+          {menu && !isKioskMode && (
             <PanelMenu
               menu={menu}
               title={typeof title === 'string' ? title : undefined}

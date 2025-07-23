@@ -20,6 +20,7 @@ import { Spec as DashboardV2Spec } from '@grafana/schema/dist/esm/schema/dashboa
 import appEvents from 'app/core/app_events';
 import { ScrollRefElement } from 'app/core/components/NativeScrollbar';
 import { LS_PANEL_COPY_KEY } from 'app/core/constants';
+import { getKioskModeFromUrl } from 'app/core/navigation/kiosk';
 import { getNavModel } from 'app/core/selectors/navModel';
 import store from 'app/core/store';
 import { sortedDeepCloneWithoutNulls } from 'app/core/utils/object';
@@ -484,6 +485,9 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
    * Returns the body (layout) or the full view panel
    */
   public getBodyToRender(): SceneObject {
+    if (getKioskModeFromUrl()) {
+      return this.state.body.getVizPanels()[0];
+    }
     return this.state.viewPanelScene ?? this.state.body;
   }
 

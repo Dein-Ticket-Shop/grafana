@@ -37,7 +37,6 @@ export function getDashboardGridStyles(theme: GrafanaTheme2) {
         // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         position: 'unset !important' as 'unset',
         transform: 'translate(0px, 0px) !important',
-        marginBottom: theme.spacing(2),
       },
       '.panel-repeater-grid-item': {
         height: 'auto !important',

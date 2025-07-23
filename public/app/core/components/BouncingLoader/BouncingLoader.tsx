@@ -112,7 +112,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
       animationDuration: '0.9s',
       animationIterationCount: 'infinite',
     },
-    width: '60px',
-    height: '60px',
+    width: '400px',
+    height: '120px',
   }),
 });

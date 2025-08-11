@@ -20,6 +20,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 import { HoverWidget } from './HoverWidget';
 import { PanelDescription } from './PanelDescription';
+import { PanelInfoButton } from './PanelInfoButton';
 import { PanelMenu } from './PanelMenu';
 import { PanelStatus } from './PanelStatus';
 import { PanelZoomOutButton } from './PanelZoomOutButton';
@@ -413,6 +414,7 @@ export function PanelChrome({
           )}
           {isKioskMode && (
             <div className={cx(dragClassCancel)} style={{ display: 'flex', gap: 4, paddingRight: 4 }}>
+              <PanelInfoButton className={styles.menuItem} showOnHoverClass={showOnHoverClass} />
               <PanelZoomOutButton className={styles.menuItem} showOnHoverClass={showOnHoverClass} />
             </div>
           )}

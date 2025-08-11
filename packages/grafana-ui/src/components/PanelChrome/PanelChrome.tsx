@@ -22,6 +22,7 @@ import { HoverWidget } from './HoverWidget';
 import { PanelDescription } from './PanelDescription';
 import { PanelMenu } from './PanelMenu';
 import { PanelStatus } from './PanelStatus';
+import { PanelZoomOutButton } from './PanelZoomOutButton';
 import { TitleItem } from './TitleItem';
 
 /**
@@ -327,7 +328,6 @@ export function PanelChrome({
   );
 
   const isKioskMode = getKioskModeFromUrl();
-  console.log('🎉 Kiosk mode:', isKioskMode);
 
   return (
     // tabIndex={0} is needed for keyboard accessibility in the plot area
@@ -410,6 +410,11 @@ export function PanelChrome({
               menuButtonClass={cx(styles.menuItem, dragClassCancel, showOnHoverClass)}
               onOpenMenu={onOpenMenu}
             />
+          )}
+          {isKioskMode && (
+            <div className={cx(dragClassCancel)} style={{ display: 'flex', gap: 4, paddingRight: 4 }}>
+              <PanelZoomOutButton className={styles.menuItem} showOnHoverClass={showOnHoverClass} />
+            </div>
           )}
         </div>
       )}

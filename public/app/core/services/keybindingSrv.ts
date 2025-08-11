@@ -51,8 +51,6 @@ export class KeybindingSrv {
       this.bind('g e', this.goToExplore);
       this.bind('g a', this.openAlerting);
       this.bind('g p', this.goToProfile);
-      this.bind('esc', this.exit);
-      this.bindGlobalEsc();
     }
 
     this.bind('c t', () => toggleTheme(false));
@@ -64,36 +62,6 @@ export class KeybindingSrv {
       // 'change pseudo locale'
       this.bind('c p l', () => togglePseudoLocale());
     }
-  }
-
-  bindGlobalEsc() {
-    this.bindGlobal('esc', this.globalEsc);
-  }
-
-  globalEsc() {
-    const anyDoc = document;
-    const activeElement = anyDoc.activeElement;
-
-    // typehead needs to handle it
-    const typeaheads = document.querySelectorAll('.slate-typeahead--open');
-    if (typeaheads.length > 0) {
-      return;
-    }
-
-    // second check if we are in an input we can blur
-    if (activeElement && activeElement instanceof HTMLElement) {
-      if (
-        activeElement.nodeName === 'INPUT' ||
-        activeElement.nodeName === 'TEXTAREA' ||
-        activeElement.hasAttribute('data-slate-editor')
-      ) {
-        activeElement.blur();
-        return;
-      }
-    }
-
-    // ok no focused input or editor that should block this, let exist!
-    this.exit();
   }
 
   private openAlerting() {
@@ -118,35 +86,6 @@ export class KeybindingSrv {
 
   private showHelpModal() {
     appEvents.publish(new ShowModalReactEvent({ component: HelpModal }));
-  }
-
-  private exit() {
-    const search = this.locationService.getSearchObject();
-
-    if (search.editview) {
-      this.locationService.partial({ editview: null, editIndex: null });
-      return;
-    }
-
-    if (search.inspect) {
-      this.locationService.partial({ inspect: null, inspectTab: null });
-      return;
-    }
-
-    if (search.editPanel) {
-      this.locationService.partial({ editPanel: null, tab: null });
-      return;
-    }
-
-    if (search.viewPanel) {
-      this.locationService.partial({ viewPanel: null, tab: null });
-      return;
-    }
-
-    const { kioskMode } = this.chromeService.state.getValue();
-    if (kioskMode) {
-      this.chromeService.exitKioskMode();
-    }
   }
 
   private showDashEditView() {

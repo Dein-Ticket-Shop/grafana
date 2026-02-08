@@ -13,6 +13,7 @@ import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { playlistSrv } from 'app/features/playlist/PlaylistSrv';
 import { KioskMode } from 'app/types/dashboard';
 
+import { getKioskModeFromUrl } from '../../../core/navigation/kiosk';
 import { DashboardScene } from '../scene/DashboardScene';
 import { NavToolbarActions } from '../scene/NavToolbarActions';
 import { PublicDashboardBadge } from '../scene/new-toolbar/actions/PublicDashboardBadge';
@@ -234,7 +235,7 @@ function getStyles(theme: GrafanaTheme2, headerHeight: number) {
       },
     }),
     bodyWrapperKiosk: css({
-      padding: theme.spacing(0, 2, 2, 2),
+      padding: theme.spacing(0),
       overflow: 'unset',
     }),
     scrollContainer: css({
@@ -265,7 +266,7 @@ function getStyles(theme: GrafanaTheme2, headerHeight: number) {
       boxSizing: 'border-box',
       flexDirection: 'column',
       // without top padding the fixed controls headers is rendered over the selection outline.
-      padding: theme.spacing(0.125, 2, 2, 2),
+      padding: getKioskModeFromUrl() ? theme.spacing(0) : theme.spacing(0.125, 2, 2, 2),
     }),
     bodyEditing: css({
       position: 'absolute',

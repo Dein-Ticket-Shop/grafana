@@ -19,6 +19,7 @@ import {
   sceneUtils,
 } from '@grafana/scenes';
 import { Box, Button, useStyles2 } from '@grafana/ui';
+import { getKioskModeFromUrl } from 'app/core/navigation/kiosk';
 import { playlistSrv } from 'app/features/playlist/PlaylistSrv';
 import { ContextualNavigationPaneToggle } from 'app/features/scopes/dashboards/ContextualNavigationPaneToggle';
 
@@ -160,6 +161,10 @@ function DashboardControlsRenderer({ model }: SceneComponentProps<DashboardContr
   const adHocVar = visibleVariables.find((v) => sceneUtils.isAdHocVariable(v));
   const groupByVar = visibleVariables.find((v) => sceneUtils.isGroupByVariable(v));
   const useUnifiedDrilldownUI = config.featureToggles.dashboardAdHocAndGroupByWrapper && adHocVar && groupByVar;
+
+  if (getKioskModeFromUrl()) {
+    return <></>;
+  }
 
   if (!model.hasControls()) {
     // To still have spacing when no controls are rendered

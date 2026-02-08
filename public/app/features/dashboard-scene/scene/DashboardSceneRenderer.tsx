@@ -8,6 +8,7 @@ import { Page } from 'app/core/components/Page/Page';
 import { getNavModel } from 'app/core/selectors/navModel';
 import { useSelector } from 'app/types/store';
 
+import { getKioskModeFromUrl } from '../../../core/navigation/kiosk';
 import { DashboardEditPaneSplitter } from '../edit-pane/DashboardEditPaneSplitter';
 
 import { DashboardScene } from './DashboardScene';
@@ -80,6 +81,9 @@ export function DashboardSceneRenderer({ model }: SceneComponentProps<DashboardS
   }
 
   function renderBody() {
+    if (getKioskModeFromUrl()) {
+      return <body.Component model={body.getVizPanels()[0]} />;
+    }
     if (!viewPanel && (panelSearch || panelsPerRow)) {
       return <PanelSearchLayout panelSearch={panelSearch} panelsPerRow={panelsPerRow} dashboard={model} />;
     }

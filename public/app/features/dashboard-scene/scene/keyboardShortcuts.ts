@@ -162,6 +162,11 @@ export function setupKeyboardShortcuts(scene: DashboardScene) {
     });
   }
 
+  // Expose zoom out helper for kiosk mode without using an `any` assertion.
+  window.kioskZoomOut = () => {
+    handleZoomOut(scene);
+  };
+
   keybindings.addBinding({
     key: 'ctrl+z',
     onTrigger: () => {
@@ -317,6 +322,13 @@ function handleZoom(scene: DashboardScene, scale: number) {
       to: dateTime(to),
     },
   });
+}
+
+// Augment the Window interface to include kioskZoomOut so we don't need a type assertion.
+declare global {
+  interface Window {
+    kioskZoomOut?: () => void;
+  }
 }
 
 function handleZoomOut(scene: DashboardScene) {

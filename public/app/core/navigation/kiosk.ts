@@ -12,3 +12,8 @@ export function getKioskMode(queryParams: UrlQueryMap): KioskMode | null {
       return null;
   }
 }
+
+export function getKioskModeFromUrl(): KioskMode | null {
+  const queryParams = new URLSearchParams(window.location.search);
+  return getKioskMode(Object.fromEntries(queryParams.entries()));
+}

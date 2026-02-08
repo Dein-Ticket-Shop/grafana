@@ -7,6 +7,7 @@ import { type GrafanaTheme2, LoadingState } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
+import { getKioskModeFromUrl } from '../../../../../public/app/core/navigation/kiosk';
 import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
 import { getFocusStyles } from '../../themes/mixins';
 import { DelayRender } from '../../utils/DelayRender';
@@ -19,8 +20,10 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 import { HoverWidget } from './HoverWidget';
 import { PanelDescription } from './PanelDescription';
+import { PanelInfoButton } from './PanelInfoButton';
 import { PanelMenu } from './PanelMenu';
 import { PanelStatus } from './PanelStatus';
+import { PanelZoomOutButton } from './PanelZoomOutButton';
 import { TitleItem } from './TitleItem';
 
 /**
@@ -354,6 +357,8 @@ export function PanelChrome({
   // If you need to cancel streaming / loading panels set a title
   const hasHeaderContent = title || description || titleItems || menu || dragClass || actions;
 
+  const isKioskMode = getKioskModeFromUrl();
+
   return (
     <div className={styles.container}>
       {/* tabIndex={0} is needed for keyboard accessibility in the plot area */}
@@ -429,10 +434,8 @@ export function PanelChrome({
                   />
                 </div>
               )}
-
               {headerContent}
-
-              {menu && (
+              {menu && !isKioskMode && (
                 <PanelMenu
                   menu={menu}
                   title={typeof title === 'string' ? title : undefined}
@@ -441,6 +444,12 @@ export function PanelChrome({
                   onOpenMenu={onOpenMenu}
                   dragClassCancel={dragClassCancel}
                 />
+              )}{' '}
+              {isKioskMode && (
+                <div className={cx(dragClassCancel)} style={{ display: 'flex', gap: 4, paddingRight: 4 }}>
+                  <PanelInfoButton className={styles.menuItem} showOnHoverClass={showOnHoverClass} />
+                  <PanelZoomOutButton className={styles.menuItem} showOnHoverClass={showOnHoverClass} />
+                </div>
               )}
             </div>
             {!collapsed && subHeaderContent && (

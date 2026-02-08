@@ -24,6 +24,7 @@ import {
 } from '@grafana/scenes';
 import { Box, Button, ButtonGroup, useStyles2 } from '@grafana/ui';
 import { useGrafana } from 'app/core/context/GrafanaContext';
+import { getKioskModeFromUrl } from 'app/core/navigation/kiosk';
 import { contextSrv } from 'app/core/services/context_srv';
 import { playlistSrv } from 'app/features/playlist/PlaylistSrv';
 import { ContextualNavigationPaneToggle } from 'app/features/scopes/dashboards/ContextualNavigationPaneToggle';
@@ -231,6 +232,10 @@ function DashboardControlsRenderer({ model }: SceneComponentProps<DashboardContr
   const panelEditVariables = getPanelEditVariables(dashboard, sectionVariablesEnabled);
   const { chrome } = useGrafana();
   const { kioskMode } = chrome.useState();
+
+  if (getKioskModeFromUrl()) {
+    return <></>;
+  }
 
   if (!model.hasControls()) {
     // If dynamic dashboards is enabled, we need to show the edit/share/playlist buttons

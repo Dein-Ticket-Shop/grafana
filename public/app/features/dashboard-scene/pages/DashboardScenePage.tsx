@@ -152,7 +152,7 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
         variant={DashboardBrandingFooterVariant.Kiosk}
         paddingX={2}
         useMinHeight={true}
-        hide={!isKioskMode || hideFooter}
+        hide={isKioskMode || hideFooter}
       />
     </UrlSyncContextProvider>
   );

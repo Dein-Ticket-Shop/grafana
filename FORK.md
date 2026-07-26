@@ -147,10 +147,40 @@ Why this and not an in-repo edit (e.g. stripping `on:` triggers or adding `if: f
   upstream ones — it's a new file from upstream's point of view, so it never
   conflicts either.
 
-Status: `build.yml` exists; **disabling the unwanted upstream workflows via
-`gh workflow disable` is still pending** — that's a live-repo settings change (needs
-a push first, and touches GitHub Actions state), not done as part of this pass. See
-"Next steps".
+Status: done. All 86 upstream workflows registered on `main` (i.e. everything except
+`build.yml`, which only exists on the working branch so far and hasn't been
+registered by GitHub Actions yet) were disabled via the API
+(`PUT /repos/.../actions/workflows/{id}/disable`, equivalent to
+`gh workflow disable`) on 2026-07-26. They stay disabled through future `git push`es
+— disabling is a repo setting, not a file state, so pushing new commits (even ones
+that touch those files) does not re-enable them. New workflow files upstream adds in
+a future release *will* start out enabled by default though, so re-check this after
+every sync (see "Next steps").
+
+Currently we're also not running `build.yml` via GitHub Actions at all — builds are
+done locally with `build-tag-upload.sh` and pushed straight to the Scaleway
+registry (see "Release process" below). Revisit enabling `build.yml` if CI-based
+builds become worthwhile again.
+
+## Release process
+
+`build-tag-upload.sh` builds the image locally (`make build-docker-full`) and
+pushes it to `rg.fr-par.scw.cloud/dein-ticket-shop/grafana-oss:<version>`, where
+`<version>` is read from `package.json` (so it always matches the release tag `main`
+is on). **Before pushing a new version, back up whatever is currently live** so a
+bad build can be rolled back without rebuilding:
+
+```bash
+# Copies the current :dev tag to :old without a full pull/push (registry-side copy).
+docker buildx imagetools create \
+  --tag rg.fr-par.scw.cloud/dein-ticket-shop/grafana-oss:old \
+  rg.fr-par.scw.cloud/dein-ticket-shop/grafana-oss:dev
+```
+
+Replace `:dev` above with whatever tag is actually deployed if that's changed since
+the last release note update. To roll back, repoint the running deployment at
+`grafana-oss:old` (or redo the `imagetools create` copy in the other direction if
+the deployment always pulls a fixed tag like `:latest`).
 
 ## Sync procedure
 
@@ -259,8 +289,10 @@ go test ./pkg/setting/... -run TestAllowEmbeddingAlwaysEnabled -v
 
 ## Next steps (not yet done)
 
-- [ ] Disable the unwanted upstream workflows via `gh workflow disable` once this
-      branch is pushed (see "CI workflow policy").
+- [x] Disable the unwanted upstream workflows via `gh workflow disable` — done
+      2026-07-26, all 86 registered workflows disabled (see "CI workflow policy").
+- [ ] Re-check workflow disable state after every future sync (new workflow files
+      upstream adds start out enabled).
 - [ ] Consider switching the dashboard-scene kiosk checks (`DashboardControls`,
       `DashboardEditPaneSplitter`, `DashboardSceneRenderer`, `DashboardScenePage`) to
       read `chrome.useState().kioskMode` instead of `getKioskModeFromUrl()`, now that

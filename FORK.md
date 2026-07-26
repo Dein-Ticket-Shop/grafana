@@ -102,7 +102,18 @@ conflict-prone — see notes below on what changed between our old base and v13.
    (import-block merges in `DashboardEditPaneSplitter.tsx` and `DashboardControls.tsx`,
    plus re-adding the modify/delete-conflicted `kiosk.ts`) but no logic rewrites.
 
-5. **`feat(ci): version Docker image tags from the Grafana release`** — adds
+5. **`fix(kiosk): always hide the Powered by Grafana footer`** — found while
+   rebasing onto v13.1.1: the original kiosk patch's footer change,
+   `hide={!isKioskMode || hideFooter}` → `hide={isKioskMode || hideFooter}`, didn't
+   just hide the footer *during* kiosk mode as intended — it also made it show up on
+   *every normal, non-kiosk* dashboard view, which upstream's
+   `DashboardScenePage.test.tsx` caught (5 failing assertions) once actually run
+   against this patch for the first time. Simplified to `hide={true}` (always
+   hidden), matching the de-branding intent of patch #2. The corresponding upstream
+   test assertions in `DashboardScenePage.test.tsx` were updated in the next commit
+   to match (see "Testing").
+
+6. **`feat(ci): version Docker image tags from the Grafana release`** — adds
    `.github/workflows/build.yml` (Docker build/push to Scaleway on
    `workflow_dispatch`) and fixes `build-tag-upload.sh`. Both now derive `VERSION`
    from `package.json` (which tracks the release we're built on) instead of a
@@ -112,7 +123,9 @@ conflict-prone — see notes below on what changed between our old base and v13.
    *delete* the entire upstream `.github/workflows/` directory — see "CI workflow
    policy" below for why that approach was dropped.
 
-6. **`test: add regression guards for fork-specific patches`** — see "Testing" below.
+7. **`test: add regression guards for fork-specific patches`** and
+   **`test(kiosk): update footer visibility tests for always-hidden behavior`** —
+   see "Testing" below.
 
 ## CI workflow policy
 
@@ -215,10 +228,20 @@ production:
   reasoning as PanelChrome above): asserts `window.kioskZoomOut` is exposed by
   `setupKeyboardShortcuts` and drives the same `dashboardSceneGraph.getTimePicker(...).onZoom()`
   path as the built-in zoom-out shortcuts.
-- **Not covered**: the dashboard-scene layout patches (`DashboardEditPaneSplitter`,
-  `DashboardControls`, `DashboardSceneRenderer`, `DashboardScenePage` — padding/footer/
-  single-panel-render changes for kiosk mode). These are deeply coupled to the scene
-  graph and better suited to a Playwright/e2e check than a unit test — still a
+- **Footer visibility** — `public/app/features/dashboard-scene/pages/DashboardScenePage.test.tsx`
+  (upstream's own file, edited in place rather than a new file — see rationale
+  below): asserts the "Powered by Grafana" footer never renders, in kiosk mode or
+  not. This *replaces* upstream's own assertions that the footer shows in kiosk
+  mode, since our fork deliberately changes that exact behavior (patch #5 above) —
+  leaving the original assertions in place would just mean 4 permanently-failing
+  tests on every future sync, which is noise, not signal. This is the one place
+  where editing an upstream test file in place (instead of adding a new one) was the
+  right call, because we're changing behavior the existing tests specifically pin,
+  not adding orthogonal behavior alongside it.
+- **Not covered**: the rest of the dashboard-scene layout patches
+  (`DashboardEditPaneSplitter` padding, `DashboardControls` hide-everything,
+  `DashboardSceneRenderer` single-panel render). These are deeply coupled to the
+  scene graph and better suited to a Playwright/e2e check than a unit test — still a
   follow-up.
 - **CI**: not unit-testable, but worth a checklist item post-sync: confirm
   `build.yml` still runs and any newly-added upstream workflows are set to disabled.
@@ -229,7 +252,8 @@ yarn jest public/app/core/components/Branding/Branding.test.ts public/app/core/n
   packages/grafana-ui/src/components/PanelChrome/PanelZoomOutButton.test.tsx \
   packages/grafana-ui/src/components/PanelChrome/PanelInfoButton.test.tsx \
   packages/grafana-ui/src/components/PanelChrome/PanelChrome.kiosk.test.tsx \
-  public/app/features/dashboard-scene/scene/keyboardShortcuts.kiosk.test.ts
+  public/app/features/dashboard-scene/scene/keyboardShortcuts.kiosk.test.ts \
+  public/app/features/dashboard-scene/pages/DashboardScenePage.test.tsx
 go test ./pkg/setting/... -run TestAllowEmbeddingAlwaysEnabled -v
 ```
 
@@ -242,6 +266,7 @@ go test ./pkg/setting/... -run TestAllowEmbeddingAlwaysEnabled -v
       read `chrome.useState().kioskMode` instead of `getKioskModeFromUrl()`, now that
       upstream has that as a first-class, centrally-computed value (see patch #4
       notes above). Would shrink our diff and conflict surface further.
-- [ ] Add e2e/Playwright coverage for the dashboard-scene layout patches (padding,
-      footer visibility, single-panel render) — the guard tests added so far cover
-      PanelChrome, the kiosk buttons, and the zoom-out wiring, but not these.
+- [ ] Add e2e/Playwright coverage for the dashboard-scene layout patches
+      (`DashboardEditPaneSplitter` padding, `DashboardControls` hide-everything,
+      single-panel render) — the guard tests added so far cover PanelChrome, the
+      kiosk buttons, footer visibility, and the zoom-out wiring, but not these.

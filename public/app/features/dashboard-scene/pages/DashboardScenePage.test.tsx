@@ -197,17 +197,21 @@ describe('DashboardScenePage', () => {
     expect(await screen.findByText('Content B')).toBeInTheDocument();
   });
 
-  it('shows Powered by footer in kiosk mode', async () => {
+  // Dein-Ticket-Shop fork: the "Powered by Grafana" footer is always hidden
+  // (feat(kiosk) / fix(kiosk) patches - see FORK.md), regardless of kiosk mode or
+  // public dashboard footer config. Upstream's equivalents of these tests asserted
+  // the footer *shows* in kiosk mode; flipped here to match the fork's intent.
+  it('does not show Powered by footer in kiosk mode', async () => {
     setup({ routeProps: { queryParams: { kiosk: true } } });
 
     await waitForDashboardToRender();
 
-    expect(await screen.findByTestId(selectors.pages.PublicDashboard.footer)).toBeInTheDocument();
+    expect(screen.queryByTestId(selectors.pages.PublicDashboard.footer)).not.toBeInTheDocument();
   });
 
-  it('shows kiosk Powered by footer even when public dashboard footerHide is enabled', async () => {
+  it('does not show Powered by footer even when public dashboard footerHide is disabled', async () => {
     setPublicDashboardConfigFn({
-      footerHide: true,
+      footerHide: false,
       footerText: 'Powered by',
       footerLogo: 'grafana-logo',
       footerLink: 'https://grafana.com/?src=grafananet&cnt=public-dashboards',
@@ -218,15 +222,15 @@ describe('DashboardScenePage', () => {
 
     await waitForDashboardToRender();
 
-    expect(await screen.findByTestId(selectors.pages.PublicDashboard.footer)).toBeInTheDocument();
+    expect(screen.queryByTestId(selectors.pages.PublicDashboard.footer)).not.toBeInTheDocument();
   });
 
-  it('shows Powered by footer when kiosk query param is present with no value (?kiosk)', async () => {
+  it('does not show Powered by footer when kiosk query param is present with no value (?kiosk)', async () => {
     setup({ routeProps: { queryParams: locationSearchToObject('?kiosk') } });
 
     await waitForDashboardToRender();
 
-    expect(await screen.findByTestId(selectors.pages.PublicDashboard.footer)).toBeInTheDocument();
+    expect(screen.queryByTestId(selectors.pages.PublicDashboard.footer)).not.toBeInTheDocument();
   });
 
   it('does not show Powered by footer when kiosk=false', async () => {
@@ -235,16 +239,6 @@ describe('DashboardScenePage', () => {
     await waitForDashboardToRender();
 
     expect(screen.queryByTestId(selectors.pages.PublicDashboard.footer)).not.toBeInTheDocument();
-  });
-
-  it('uses kiosk dashboard CTA url', async () => {
-    setup({ routeProps: { queryParams: { kiosk: true } } });
-
-    await waitForDashboardToRender();
-
-    const footer = await screen.findByTestId(selectors.pages.PublicDashboard.footer);
-    const link = footer.querySelector('a');
-    expect(link).toHaveAttribute('href', 'https://grafana.com/?src=grafananet&cnt=kiosk-dashboard');
   });
 
   it('hides Powered by footer in kiosk mode when hideLogo is present', async () => {

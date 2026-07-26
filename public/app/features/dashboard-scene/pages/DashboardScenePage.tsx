@@ -30,7 +30,6 @@ import { preserveDashboardSceneStateInLocalStorage } from '../utils/dashboardSes
 import { useScenesFlickeringFix } from '../utils/utils';
 
 import { getDashboardScenePageStateManager } from './DashboardScenePageStateManager';
-import { shouldHideDashboardKioskFooter } from './utils';
 
 export interface Props
   extends Omit<GrafanaRouteComponentProps<DashboardPageRouteParams, DashboardPageRouteSearchParams>, 'match'> {}
@@ -136,10 +135,6 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
     return null;
   }
 
-  // `locationSearchToObject()` parses `?kiosk` as `true` (boolean param). Some clients can emit `?kiosk=`, which parses as ''.
-  const isKioskMode = queryParams.kiosk === '1' || queryParams.kiosk === true || queryParams.kiosk === '';
-  const hideFooter = shouldHideDashboardKioskFooter(queryParams.hideLogo);
-
   return (
     <UrlSyncContextProvider scene={dashboard} updateUrlOnInit={true} createBrowserHistorySteps={true}>
       <DashboardPreviewBanner queryParams={queryParams} route={route.routeName} slug={slug} path={path} />
@@ -152,7 +147,7 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
         variant={DashboardBrandingFooterVariant.Kiosk}
         paddingX={2}
         useMinHeight={true}
-        hide={isKioskMode || hideFooter}
+        hide={true}
       />
     </UrlSyncContextProvider>
   );

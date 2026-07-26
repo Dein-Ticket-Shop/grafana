@@ -694,3 +694,17 @@ func TestDynamicSection(t *testing.T) {
 		assert.Equal(t, value, ds.section.Key(key).String())
 	})
 }
+
+// TestAllowEmbeddingAlwaysEnabled guards a Dein-Ticket-Shop fork patch (feat(kiosk):
+// fullscreen kiosk panels) that hardcodes AllowEmbedding to true so dashboards can be
+// embedded fullscreen for kiosk displays, regardless of the `[security] allow_embedding`
+// ini setting. If this test starts failing after a rebase onto upstream, the patch was
+// dropped or upstream changed how the setting is read - see CLAUDE.md.
+func TestAllowEmbeddingAlwaysEnabled(t *testing.T) {
+	cfg, err := NewCfgFromBytes([]byte(`
+[security]
+allow_embedding = false
+`))
+	require.NoError(t, err)
+	require.True(t, cfg.AllowEmbedding, "AllowEmbedding must stay hardcoded to true for kiosk mode, even when explicitly disabled in ini")
+}
